@@ -1,0 +1,124 @@
+1          ;*';*";*/;quit;run;
+2          OPTIONS PAGENO=MIN;
+3          %LET _CLIENTTASKLABEL='Assigment_03';
+4          %LET _CLIENTPROJECTPATH='D:\MisDatos\2013\Formacion\PassionDrivenStatistics\Lectures\Week 2\Project_W2.egp';
+5          %LET _CLIENTPROJECTNAME='Project_W2.egp';
+6          %LET _SASPROGRAMFILE=;
+7          
+8          ODS _ALL_ CLOSE;
+9          OPTIONS DEV=ACTIVEX;
+10         GOPTIONS XPIXELS=0 YPIXELS=0;
+11         FILENAME EGSR TEMP;
+12         ODS tagsets.sasreport12(ID=EGSR) FILE=EGSR STYLE=Analysis
+12       ! STYLESHEET=(URL="file:///C:/Program%20Files%20(x86)/SAS/EnterpriseGuideAcademics/4.3/Styles/Analysis.css") NOGTITLE
+12       ! NOGFOOTNOTE GPATH=&sasworklocation ENCODING=UTF8 options(rolap="on");
+NOTE: Writing TAGSETS.SASREPORT12(EGSR) Body file: EGSR
+13         
+14         GOPTIONS ACCESSIBLE;
+15         libname mydata "/courses/u_coursera.org1/i_1006328/c_5333" access=readonly;
+NOTE: Libref MYDATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /courses/u_coursera.org1/i_1006328/c_5333
+16         
+17         
+18         DATA new; SET mydata.gapminder_pds;
+NOTE: Data file MYDATA.GAPMINDER_PDS.DATA is in a format that is native to another host, or the file encoding does not match the 
+      session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+19         
+20         /*Data Munging*/
+21         /*Creating INTERNETSCORE tabulating INTERNETUSERATE*/
+22         
+23         IF INTERNETUSERATE < 0 THEN INTERNETSCORE = .;
+24         ELSE IF INTERNETUSERATE < 3 THEN INTERNETSCORE = 0;
+25         ELSE IF INTERNETUSERATE < 7.5 THEN INTERNETSCORE = 1;
+26         ELSE IF INTERNETUSERATE < 12.33 THEN INTERNETSCORE = 2;
+27         ELSE IF INTERNETUSERATE < 20 THEN INTERNETSCORE = 3;
+28         ELSE IF INTERNETUSERATE < 31.5 THEN INTERNETSCORE = 4;
+29         ELSE IF INTERNETUSERATE < 40.6 THEN INTERNETSCORE = 5;
+30         ELSE IF INTERNETUSERATE < 49 THEN INTERNETSCORE = 6;
+31         ELSE IF INTERNETUSERATE < 65.2 THEN INTERNETSCORE = 7;
+32         ELSE IF INTERNETUSERATE < 78 THEN INTERNETSCORE = 8;
+33         ELSE IF INTERNETUSERATE < 100 THEN INTERNETSCORE = 9;
+34         
+35         
+36         
+
+NOTE: There were 289 observations read from the data set MYDATA.GAPMINDER_PDS.
+NOTE: The data set WORK.NEW has 289 observations and 17 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              970.65k
+      OS Memory           13100.00k
+      Timestamp           04/05/2013 08:41:09 PM
+      Page Faults                       0
+      Page Reclaims                     0
+2                                                          The SAS System                                20:39 Friday, April 5, 2013
+
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+37         PROC SORT; BY COUNTRY;
+
+38         
+39         
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.NEW has 289 observations and 17 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              769.21k
+      OS Memory           13616.00k
+      Timestamp           04/05/2013 08:41:09 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+40         PROC FREQ; TABLES COUNTRY INTERNETUSERATE POLITYSCORE INTERNETSCORE;
+
+41         
+42         run;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.38 seconds
+      user cpu time       0.38 seconds
+      system cpu time     0.00 seconds
+      memory              1544.82k
+      OS Memory           13616.00k
+      Timestamp           04/05/2013 08:41:09 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        28
+      Involuntary Context Switches      4
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+43         
+44         GOPTIONS NOACCESSIBLE;
+45         %LET _CLIENTTASKLABEL=;
+46         %LET _CLIENTPROJECTPATH=;
+47         %LET _CLIENTPROJECTNAME=;
+48         %LET _SASPROGRAMFILE=;
+49         
+50         ;*';*";*/;quit;run;
+3                                                          The SAS System                                20:39 Friday, April 5, 2013
+
+51         ODS _ALL_ CLOSE;
+52         
+53         
+54         QUIT; RUN;
+55         
