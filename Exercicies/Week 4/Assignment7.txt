@@ -1,0 +1,892 @@
+1                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+1          ;*';*";*/;quit;run;
+2          OPTIONS PAGENO=MIN;
+3          %LET _CLIENTTASKLABEL='Gapminder_Analysis';
+4          %LET _CLIENTPROJECTPATH='D:\MisDatos\2013\Formacion\PassionDrivenStatistics\SAS
+4        ! Projects\Assignment1\Gapminder_Project.egp';
+5          %LET _CLIENTPROJECTNAME='Gapminder_Project.egp';
+6          %LET _SASPROGRAMFILE=;
+7          
+8          ODS _ALL_ CLOSE;
+9          OPTIONS DEV=ACTIVEX;
+10         GOPTIONS XPIXELS=0 YPIXELS=0;
+11         FILENAME EGSR TEMP;
+12         ODS tagsets.sasreport12(ID=EGSR) FILE=EGSR STYLE=Analysis
+12       ! STYLESHEET=(URL="file:///C:/Program%20Files%20(x86)/SAS/EnterpriseGuideAcademics/4.3/Styles/Analysis.css") NOGTITLE
+12       ! NOGFOOTNOTE GPATH=&sasworklocation ENCODING=UTF8 options(rolap="on");
+NOTE: Writing TAGSETS.SASREPORT12(EGSR) Body file: EGSR
+13         
+14         GOPTIONS ACCESSIBLE;
+15         
+16         libname mydata "/courses/u_coursera.org1/i_1006328/c_5333" access=readonly;
+NOTE: Libref MYDATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /courses/u_coursera.org1/i_1006328/c_5333
+17         
+18         
+19         DATA new; SET mydata.gapminder_pds;
+NOTE: Data file MYDATA.GAPMINDER_PDS.DATA is in a format that is native to another host, or the file encoding does not match the 
+      session encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+20         
+21         /*Data Munging*/
+22         /*Creating INTERNETSCORE tabulating INTERNETUSERATE*/
+23         
+24         /*IF INTERNETUSERATE < 0 THEN INTERNETSCORE = .;
+25         ELSE IF INTERNETUSERATE < 3 THEN INTERNETSCORE = 0;
+26         ELSE IF INTERNETUSERATE < 7.5 THEN INTERNETSCORE = 1;
+27         ELSE IF INTERNETUSERATE < 12.33 THEN INTERNETSCORE = 2;
+28         ELSE IF INTERNETUSERATE < 20 THEN INTERNETSCORE = 3;
+29         ELSE IF INTERNETUSERATE < 31.5 THEN INTERNETSCORE = 4;
+30         ELSE IF INTERNETUSERATE < 40.6 THEN INTERNETSCORE = 5;
+31         ELSE IF INTERNETUSERATE < 49 THEN INTERNETSCORE = 6;
+32         ELSE IF INTERNETUSERATE < 65.2 THEN INTERNETSCORE = 7;
+33         ELSE IF INTERNETUSERATE < 78 THEN INTERNETSCORE = 8;
+34         ELSE IF INTERNETUSERATE < 100 THEN INTERNETSCORE = 9;*/
+35         
+36         IF INTERNETUSERATE < 0 THEN INTERNETSCORE = .;
+37         ELSE IF INTERNETUSERATE < 7.5 THEN INTERNETSCORE = 0;
+38         ELSE IF INTERNETUSERATE < 20 THEN INTERNETSCORE = 1;
+39         ELSE IF INTERNETUSERATE < 40.6 THEN INTERNETSCORE = 2;
+40         ELSE IF INTERNETUSERATE < 65.2 THEN INTERNETSCORE = 3;
+41         ELSE IF INTERNETUSERATE < 100 THEN INTERNETSCORE = 4;
+42         
+43         
+44         
+45         
+46         /* To see the association of POLICYSCORE and  INTERNETSCORE */
+47         IF POLITYSCORE = . THEN POLITYSCORE2 = .;
+48         ELSE IF POLITYSCORE <= -5 THEN POLITYSCORE2=0;
+2                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+49         ELSE IF POLITYSCORE <= 0 THEN POLITYSCORE2=1;
+50         ELSE IF POLITYSCORE <= 5 THEN POLITYSCORE2=2;
+51         ELSE POLITYSCORE2=3;
+52         
+53         
+54         
+55         
+
+NOTE: There were 289 observations read from the data set MYDATA.GAPMINDER_PDS.
+NOTE: The data set WORK.NEW has 289 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              884.35k
+      OS Memory           13868.00k
+      Timestamp           04/21/2013 05:16:49 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        14
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+56         PROC SORT; BY COUNTRY;
+
+57         
+58         
+59         
+60         /*PROC PRINT; VAR COUNTRY INTERNETUSERATE POLITYSCORE INTERNETSCORE;*/
+61         
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.NEW has 289 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              772.50k
+      OS Memory           14128.00k
+      Timestamp           04/21/2013 05:16:49 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+62         PROC FREQ; TABLES COUNTRY INTERNETUSERATE POLITYSCORE POLITYSCORE2 INTERNETSCORE;
+
+63         
+64         /* ANOVA between PolityScore2 (Explanatory) and InternetUserRate (Response)*/
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.36 seconds
+3                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+      user cpu time       0.35 seconds
+      system cpu time     0.00 seconds
+      memory              1502.40k
+      OS Memory           14384.00k
+      Timestamp           04/21/2013 05:16:49 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        22
+      Involuntary Context Switches      3
+      Block Input Operations            0
+      Block Output Operations           0
+      
+65         PROC ANOVA; CLASS POLITYSCORE2;
+
+66         MODEL INTERNETUSERATE=POLITYSCORE2;
+67         MEANS POLITYSCORE2; /*/DUNCAN;*/
+68         
+69         
+70         
+71         /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)*/
+
+NOTE: PROCEDURE ANOVA used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1456.03k
+      OS Memory           14904.00k
+      Timestamp           04/21/2013 05:16:49 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        44
+      Involuntary Context Switches      1
+      Block Input Operations            0
+      Block Output Operations           0
+      
+72         PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+73         
+74         run;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.06 seconds
+      user cpu time       0.04 seconds
+      system cpu time     0.01 seconds
+      memory              1361.89k
+      OS Memory           14900.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        48
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+4                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+
+75         
+76         
+77         /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+78         SUBSET: INTERNETSCORE=0 OR INTERNETSCORE=1
+79         */
+80         DATA COMPARISON1; SET NEW;
+81         IF INTERNETSCORE=0 OR INTERNETSCORE=1;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON1 has 76 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              829.21k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+82         PROC SORT; BY COUNTRY;
+
+83         
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON1.
+NOTE: The data set WORK.COMPARISON1 has 76 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              769.93k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+84         PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+85         
+86         RUN;
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON1.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.02 seconds
+      system cpu time     0.01 seconds
+      memory              1259.78k
+5                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+      OS Memory           14900.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        49
+      Involuntary Context Switches      1
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+87         
+88         /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+89         SUBSET: INTERNETSCORE=0 OR INTERNETSCORE=2
+90         */
+91         DATA COMPARISON2; SET NEW;
+92         IF INTERNETSCORE=0 OR INTERNETSCORE=2;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON2 has 77 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              828.21k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+93         PROC SORT; BY COUNTRY;
+
+94         
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON2.
+NOTE: The data set WORK.COMPARISON2 has 77 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              770.09k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+95         PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+6                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+96         
+97         RUN;
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON2.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.00 seconds
+      memory              1236.56k
+      OS Memory           14900.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        47
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+98         
+99         
+100        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+101        SUBSET: INTERNETSCORE=0 OR INTERNETSCORE=3
+102        */
+103        DATA COMPARISON3; SET NEW;
+104        IF INTERNETSCORE=0 OR INTERNETSCORE=3;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON3 has 78 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              828.21k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+105        PROC SORT; BY COUNTRY;
+
+106        
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON3.
+NOTE: The data set WORK.COMPARISON3 has 78 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              769.93k
+      OS Memory           14640.00k
+      Timestamp           04/21/2013 05:16:50 PM
+7                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+107        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+108        
+109        RUN;
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON3.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1240.04k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        45
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+110        
+111        
+112        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+113        SUBSET: INTERNETSCORE=0 OR INTERNETSCORE=4
+114        */
+115        DATA COMPARISON4; SET NEW;
+116        IF INTERNETSCORE=0 OR INTERNETSCORE=4;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON4 has 78 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              828.21k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+117        PROC SORT; BY COUNTRY;
+
+118        
+8                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON4.
+NOTE: The data set WORK.COMPARISON4 has 78 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              770.09k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+119        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+120        
+121        RUN;
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON4.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1236.56k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        45
+      Involuntary Context Switches      3
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+122        
+123        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+124        SUBSET: INTERNETSCORE=1 OR INTERNETSCORE=2
+125        */
+126        DATA COMPARISON5; SET NEW;
+127        IF INTERNETSCORE=1 OR INTERNETSCORE=2;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON5 has 75 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              829.21k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+9                                                          The SAS System                               17:10 Sunday, April 21, 2013
+
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+128        PROC SORT; BY COUNTRY;
+
+129        
+
+NOTE: There were 75 observations read from the data set WORK.COMPARISON5.
+NOTE: The data set WORK.COMPARISON5 has 75 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              769.93k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+130        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+131        
+132        RUN;
+
+NOTE: There were 75 observations read from the data set WORK.COMPARISON5.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1237.34k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        45
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+133        
+134        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+135        SUBSET: INTERNETSCORE=1 OR INTERNETSCORE=3
+136        */
+137        DATA COMPARISON6; SET NEW;
+138        IF INTERNETSCORE=1 OR INTERNETSCORE=3;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON6 has 76 observations and 18 variables.
+10                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              828.21k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        12
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+139        PROC SORT; BY COUNTRY;
+
+140        
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON6.
+NOTE: The data set WORK.COMPARISON6 has 76 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              770.09k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+141        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+142        
+143        RUN;
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON6.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.00 seconds
+      memory              1234.68k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        47
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+11                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+144        
+145        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+146        SUBSET: INTERNETSCORE=1 OR INTERNETSCORE=2
+147        */
+148        DATA COMPARISON7; SET NEW;
+149        IF INTERNETSCORE=1 OR INTERNETSCORE=4;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON7 has 76 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              828.21k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+150        PROC SORT; BY COUNTRY;
+
+151        
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON7.
+NOTE: The data set WORK.COMPARISON7 has 76 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              769.93k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+152        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+153        
+154        RUN;
+
+NOTE: There were 76 observations read from the data set WORK.COMPARISON7.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.02 seconds
+      system cpu time     0.00 seconds
+      memory              1241.75k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+12                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        38
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+155        
+156        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+157        SUBSET: INTERNETSCORE=2 OR INTERNETSCORE=3
+158        */
+159        DATA COMPARISON8; SET NEW;
+160        IF INTERNETSCORE=2 OR INTERNETSCORE=3;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON8 has 77 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              828.40k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+161        PROC SORT; BY COUNTRY;
+
+162        
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON8.
+NOTE: The data set WORK.COMPARISON8 has 77 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              771.12k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+163        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+164        
+165        RUN;
+13                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON8.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1237.90k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        38
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+166        
+167        
+168        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+169        SUBSET: INTERNETSCORE=2 OR INTERNETSCORE=4
+170        */
+171        DATA COMPARISON9; SET NEW;
+172        IF INTERNETSCORE=2 OR INTERNETSCORE=4;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON9 has 77 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              827.93k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+173        PROC SORT; BY COUNTRY;
+
+174        
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON9.
+NOTE: The data set WORK.COMPARISON9 has 77 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              770.93k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+14                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+175        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+176        
+177        RUN;
+
+NOTE: There were 77 observations read from the data set WORK.COMPARISON9.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1237.03k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        38
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+178        
+179        /* CHI Square between  InternetScore(Explanatory) and  PolityScore2(Response)
+180        SUBSET: INTERNETSCORE=3 OR INTERNETSCORE=4
+181        */
+182        DATA COMPARISON10; SET NEW;
+183        IF INTERNETSCORE=3 OR INTERNETSCORE=4;
+
+NOTE: There were 289 observations read from the data set WORK.NEW.
+NOTE: The data set WORK.COMPARISON10 has 78 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              828.40k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        13
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+184        PROC SORT; BY COUNTRY;
+
+185        
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON10.
+NOTE: The data set WORK.COMPARISON10 has 78 observations and 18 variables.
+15                                                         The SAS System                               17:10 Sunday, April 21, 2013
+
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              771.12k
+      OS Memory           14896.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+186        PROC FREQ; TABLES POLITYSCORE2*INTERNETSCORE /CHISQ;
+
+187        
+188        RUN;
+
+NOTE: There were 78 observations read from the data set WORK.COMPARISON10.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              1239.00k
+      OS Memory           15156.00k
+      Timestamp           04/21/2013 05:16:50 PM
+      Page Faults                       0
+      Page Reclaims                     0
+      Page Swaps                        0
+      Voluntary Context Switches        38
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+189        
+190        GOPTIONS NOACCESSIBLE;
+191        %LET _CLIENTTASKLABEL=;
+192        %LET _CLIENTPROJECTPATH=;
+193        %LET _CLIENTPROJECTNAME=;
+194        %LET _SASPROGRAMFILE=;
+195        
+196        ;*';*";*/;quit;run;
+197        ODS _ALL_ CLOSE;
+198        
+199        
+200        QUIT; RUN;
+201        
