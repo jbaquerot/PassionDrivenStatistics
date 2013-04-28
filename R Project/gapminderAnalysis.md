@@ -1,0 +1,54 @@
+Passion Driven Statistics Project
+========================================================
+
+
+IF INTERNETUSERATE < 0 THEN INTERNETSCORE = .;
+ELSE IF INTERNETUSERATE < 7.5 THEN INTERNETSCORE = 0;
+ELSE IF INTERNETUSERATE < 20 THEN INTERNETSCORE = 1;
+ELSE IF INTERNETUSERATE < 40.6 THEN INTERNETSCORE = 2;
+ELSE IF INTERNETUSERATE < 65.2 THEN INTERNETSCORE = 3;
+ELSE IF INTERNETUSERATE < 100 THEN INTERNETSCORE = 4;
+
+
+
+
+/* To see the association of POLICYSCORE and  INTERNETSCORE */
+IF POLITYSCORE = . THEN POLITYSCORE2 = .;
+ELSE IF POLITYSCORE <= -5 THEN POLITYSCORE2=0;
+ELSE IF POLITYSCORE <= 0 THEN POLITYSCORE2=1;
+ELSE IF POLITYSCORE <= 5 THEN POLITYSCORE2=2;
+ELSE POLITYSCORE2=3;
+
+
+```r
+data <- load("./gapminder_pds.RData")
+# Data munging
+gapminder_pds[is.na(gapminder_pds["polityscore"]), "polityscore2"] <- NA
+gapminder_pds[(!is.na(gapminder_pds["polityscore"]) & gapminder_pds["polityscore"] <= 
+    -5), "polityscore2"] <- 0
+gapminder_pds[(!is.na(gapminder_pds["polityscore"]) & gapminder_pds["polityscore"] > 
+    -5 & gapminder_pds["polityscore"] <= 0), "polityscore2"] <- 1
+gapminder_pds[(!is.na(gapminder_pds["polityscore"]) & gapminder_pds["polityscore"] > 
+    0 & gapminder_pds["polityscore"] <= 5), "polityscore2"] <- 2
+gapminder_pds[(!is.na(gapminder_pds["polityscore"]) & gapminder_pds["polityscore"] > 
+    5), "polityscore2"] <- 3
+
+
+gapminder_pds[is.na(gapminder_pds["internetuserate"]), "internetscore"] <- NA
+gapminder_pds[(!is.na(gapminder_pds["internetuserate"]) & gapminder_pds["internetuserate"] <= 
+    7.5), "internetscore"] <- 0
+gapminder_pds[(!is.na(gapminder_pds["internetuserate"]) & gapminder_pds["internetuserate"] > 
+    7.5 & gapminder_pds["internetuserate"] <= 20), "internetscore"] <- 1
+gapminder_pds[(!is.na(gapminder_pds["internetuserate"]) & gapminder_pds["internetuserate"] > 
+    20 & gapminder_pds["internetuserate"] <= 40.6), "internetscore"] <- 2
+gapminder_pds[(!is.na(gapminder_pds["internetuserate"]) & gapminder_pds["internetuserate"] > 
+    40.6 & gapminder_pds["internetuserate"] <= 65.2), "internetscore"] <- 3
+gapminder_pds[(!is.na(gapminder_pds["internetuserate"]) & gapminder_pds["internetuserate"] > 
+    65.2), "internetscore"] <- 4
+```
+
+
+
+
+
+
